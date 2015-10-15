@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2014 Tasharen Entertainment
 //----------------------------------------------
@@ -378,7 +378,7 @@ public class UIDrawCall : MonoBehaviour
 
 			if (verts.size < 65000)
 			{
-				// Populate the str buffer
+				// Populate the index buffer
 				int indexCount = (count >> 1) * 3;
 				bool setIndices = (mIndices == null || mIndices.Length != indexCount);
 
@@ -502,7 +502,7 @@ public class UIDrawCall : MonoBehaviour
 #endif
 
 	/// <summary>
-	/// Generates a new str buffer for the specified number of vertices (or reuses an existing one).
+	/// Generates a new index buffer for the specified number of vertices (or reuses an existing one).
 	/// </summary>
 
 	int[] GenerateCachedIndexBuffer (int vertexCount, int indexCount)

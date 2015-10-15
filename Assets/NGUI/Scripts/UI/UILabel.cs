@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2014 Tasharen Entertainment
 //----------------------------------------------
@@ -1215,7 +1215,7 @@ public class UILabel : UIWidget
 	static BetterList<int> mTempIndices = new BetterList<int>();
 
 	/// <summary>
-	/// Return the str of the character at the specified world position.
+	/// Return the index of the character at the specified world position.
 	/// </summary>
 
 	public int GetCharacterIndexAtPosition (Vector3 worldPos)
@@ -1225,7 +1225,7 @@ public class UILabel : UIWidget
 	}
 
 	/// <summary>
-	/// Return the str of the character at the specified local position.
+	/// Return the index of the character at the specified local position.
 	/// </summary>
 
 	public int GetCharacterIndexAtPosition (Vector2 localPos)
@@ -1266,7 +1266,7 @@ public class UILabel : UIWidget
 	public string GetWordAtPosition (Vector2 localPos) { return GetWordAtCharacterIndex(GetCharacterIndexAtPosition(localPos)); }
 
 	/// <summary>
-	/// Retrieve the word right under the specified character str.
+	/// Retrieve the word right under the specified character index.
 	/// </summary>
 
 	public string GetWordAtCharacterIndex (int characterIndex)
@@ -1299,7 +1299,7 @@ public class UILabel : UIWidget
 	public string GetUrlAtPosition (Vector2 localPos) { return GetUrlAtCharacterIndex(GetCharacterIndexAtPosition(localPos)); }
 
 	/// <summary>
-	/// Retrieve the URL right under the specified character str.
+	/// Retrieve the URL right under the specified character index.
 	/// </summary>
 
 	public string GetUrlAtCharacterIndex (int characterIndex)
@@ -1325,7 +1325,7 @@ public class UILabel : UIWidget
 	}
 
 	/// <summary>
-	/// Get the str of the character on the line directly above or below the current str.
+	/// Get the index of the character on the line directly above or below the current index.
 	/// </summary>
 
 	public int GetCharacterIndex (int currentIndex, KeyCode key)
@@ -1539,7 +1539,7 @@ public class UILabel : UIWidget
 	}
 
 	/// <summary>
-	/// Calculate the character str offset necessary in order to print the end of the specified text.
+	/// Calculate the character index offset necessary in order to print the end of the specified text.
 	/// </summary>
 
 	public int CalculateOffsetToFit (string text)

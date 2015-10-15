@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2014 Tasharen Entertainment
 //----------------------------------------------
@@ -274,7 +274,7 @@ static public class NGUIText
 	}
 
 	/// <summary>
-	/// Parse an embedded symbol, such as [FFAA00] (set color) or [-] (undo color change). Returns whether the str was adjusted.
+	/// Parse an embedded symbol, such as [FFAA00] (set color) or [-] (undo color change). Returns whether the index was adjusted.
 	/// </summary>
 
 	static public bool ParseSymbol (string text, ref int index)
@@ -288,7 +288,7 @@ static public class NGUIText
 	}
 
 	/// <summary>
-	/// Parse the symbol, if possible. Returns 'true' if the 'str' was adjusted. Advanced symbol support contributed by Rudy Pangestu.
+	/// Parse the symbol, if possible. Returns 'true' if the 'index' was adjusted. Advanced symbol support contributed by Rudy Pangestu.
 	/// </summary>
 
 	static public bool ParseSymbol (string text, ref int index, BetterList<Color> colors, bool premultiply,
@@ -570,7 +570,7 @@ static public class NGUIText
 	}
 
 	/// <summary>
-	/// Get the str of the closest character within the provided list of values.
+	/// Get the index of the closest character within the provided list of values.
 	/// This function first sorts by Y, and only then by X.
 	/// </summary>
 
@@ -707,7 +707,7 @@ static public class NGUIText
 	static BetterList<float> mSizes = new BetterList<float>();
 
 	/// <summary>
-	/// Calculate the character str offset required to print the end of the specified text.
+	/// Calculate the character index offset required to print the end of the specified text.
 	/// </summary>
 
 	static public int CalculateOffsetToFit (string text)

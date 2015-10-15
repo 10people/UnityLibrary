@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2014 Tasharen Entertainment
 //----------------------------------------------
@@ -64,10 +64,10 @@ public class BetterList<T>
 	public void Add (T item) { mList.Add(item); }
 
 	/// <summary>
-	/// Insert an item at the specified str, pushing the entries back.
+	/// Insert an item at the specified index, pushing the entries back.
 	/// </summary>
 
-	public void Insert (int str, T item) { mList.Insert(str, item); }
+	public void Insert (int index, T item) { mList.Insert(index, item); }
 
 	/// <summary>
 	/// Returns 'true' if the specified item is within the list.
@@ -76,16 +76,16 @@ public class BetterList<T>
 	public bool Contains (T item) { return mList.Contains(item); }
 
 	/// <summary>
-	/// Remove the specified item from the list. Note that RemoveAt() is faster and is advisable if you already know the str.
+	/// Remove the specified item from the list. Note that RemoveAt() is faster and is advisable if you already know the index.
 	/// </summary>
 
 	public bool Remove (T item) { return mList.Remove(item); }
 
 	/// <summary>
-	/// Remove an item at the specified str.
+	/// Remove an item at the specified index.
 	/// </summary>
 
-	public void RemoveAt (int str) { mList.RemoveAt(str); }
+	public void RemoveAt (int index) { mList.RemoveAt(index); }
 
 	/// <summary>
 	/// Remove an item from the end.
@@ -209,7 +209,7 @@ public class BetterList<T>
 	}
 
 	/// <summary>
-	/// Insert an item at the specified str, pushing the entries back.
+	/// Insert an item at the specified index, pushing the entries back.
 	/// </summary>
 
 	public void Insert (int index, T item)
@@ -237,7 +237,7 @@ public class BetterList<T>
 	}
 
 	/// <summary>
-	/// Remove the specified item from the list. Note that RemoveAt() is faster and is advisable if you already know the str.
+	/// Remove the specified item from the list. Note that RemoveAt() is faster and is advisable if you already know the index.
 	/// </summary>
 
 	public bool Remove (T item)
@@ -262,7 +262,7 @@ public class BetterList<T>
 	}
 
 	/// <summary>
-	/// Remove an item at the specified str.
+	/// Remove an item at the specified index.
 	/// </summary>
 
 	public void RemoveAt (int index)

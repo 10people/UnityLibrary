@@ -74,7 +74,7 @@ public class InvDatabaseInspector : Editor
 	}
 
 	/// <summary>
-	/// Helper function that sets the str to the str of the specified item.
+	/// Helper function that sets the index to the index of the specified item.
 	/// </summary>
 
 	public static void SelectIndex (InvDatabase db, InvBaseItem item)

@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2014 Tasharen Entertainment
 //----------------------------------------------
@@ -31,7 +31,7 @@ static public class NGUIMath
 	static public int ClampIndex (int val, int max) { return (val < 0) ? 0 : (val < max ? val : max - 1); }
 
 	/// <summary>
-	/// Wrap the str using repeating logic, so that for example +1 past the end means str of '1'.
+	/// Wrap the index using repeating logic, so that for example +1 past the end means index of '1'.
 	/// </summary>
 
 	[System.Diagnostics.DebuggerHidden]
