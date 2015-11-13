@@ -18,7 +18,7 @@ shared module of Unity
 
 7.Inverse dictionary.
 
-8.float buttons controller.
+8.Float buttons controller.
 
 9.Add several functions to improve UIScrollView in NGUI.
 
