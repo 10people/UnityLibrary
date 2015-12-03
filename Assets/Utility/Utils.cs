@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.IO;
 using System.Text;
@@ -7,6 +8,8 @@ using System.Linq;
 
 public class Utils : MonoBehaviour
 {
+    #region Transform
+
     /// <summary>
     /// Ergodic parent's all children
     /// </summary>
@@ -191,6 +194,10 @@ public class Utils : MonoBehaviour
         targetChild.gameObject.SetActive(true);
     }
 
+    #endregion
+
+    #region Math
+
     public static string FullNumWithZeroDigit(int ori, int maxLength)
     {
         int length = ori.ToString().Length;
@@ -275,6 +282,10 @@ public class Utils : MonoBehaviour
         return origStr;
     }
 
+    #endregion
+
+    #region ScrollView Methods
+
     public static void SetScrollBarValue(UIScrollView view, UIScrollBar bar, float var)
     {
         if (var > 1 || var < 0)
@@ -309,6 +320,10 @@ public class Utils : MonoBehaviour
             if (scrollValue <= 0) scrollBar.value = scrollBar.value == 0f ? 0.01f : 0f;
         }
     }
+
+    #endregion
+
+    #region Fold Line
 
     public class SegmentInFoldLine
     {
@@ -384,5 +399,306 @@ public class Utils : MonoBehaviour
         SegmentInFoldLine tempLine = segmentList.Where(item => item.PerviousPercentInTotal <= precent).OrderBy(item2 => item2.PerviousPercentInTotal).Last();
         return tempLine.EndPoint - tempLine.StartPoint;
     }
+
+    #endregion
+
+    #region ClockTime
+
+    public struct ClockTime
+    {
+        public ClockTime(int l_hour, int l_minute, int l_second)
+        {
+            hour = l_hour;
+            minute = l_minute;
+            second = l_second;
+        }
+
+        public static ClockTime zero = new ClockTime(0, 0, 0);
+
+        public int hour;
+        public int minute;
+        public int second;
+
+        public static ClockTime Parse(string text)
+        {
+            try
+            {
+                var splited = text.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries).Select(item => int.Parse(item)).ToList();
+                if (splited.Count == 0) throw new Exception("ClockTime length is 0, transfer fail.");
+                if (splited.Count == 1) return new ClockTime(0, 0, splited[0]);
+                if (splited.Count == 2) return new ClockTime(0, splited[1], splited[0]);
+                if (splited.Count == 3) return new ClockTime(splited[2], splited[1], splited[0]);
+                throw new Exception("ClockTime length larger than 3, transfer fail.");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Transfer ClockTime fail, contact LiangXiao if you donot know how to solve this, exception:" + e.Source + "\nstackTrace:" + e.StackTrace);
+                return zero;
+            }
+        }
+
+        public override string ToString()
+        {
+            string hourStr = hour.ToString();
+            while (hourStr.Length < 2)
+            {
+                hourStr = "0" + hourStr;
+            }
+
+            string minuteStr = minute.ToString();
+            while (minuteStr.Length < 2)
+            {
+                minuteStr = "0" + minuteStr;
+            }
+
+            string secondStr = second.ToString();
+            while (secondStr.Length < 2)
+            {
+                secondStr = "0" + secondStr;
+            }
+
+            if (hour == 0)
+            {
+                return minuteStr + ":" + secondStr;
+            }
+            else
+            {
+                return hourStr + ":" + minuteStr + ":" + secondStr;
+            }
+        }
+    }
+
+    public static ClockTime SecondToClockTime(int second)
+    {
+        if (second < 0)
+        {
+            return ClockTime.zero;
+        }
+
+        return new ClockTime(second / 3600, (second % 3600) / 60, second % 60);
+    }
+
+    public static int ClockTimeToSecond(ClockTime clockTime)
+    {
+        return clockTime.hour * 3600 + clockTime.minute * 60 + clockTime.second;
+    }
+
+    #endregion
+
+    #region Time Calculate Module
+
+    private float TimeCalcLastTime;
+
+    void Update()
+    {
+        //One delegate.
+        var tempList = TimeCalc.m_timeCalcList.Where(item => (item.IsOneDelegate) && (item.StartTime >= 0) && (!item.IsOverTime)).ToList();
+        for (int i = 0; i < tempList.Count; i++)
+        {
+            if (Time.realtimeSinceStartup - tempList[i].StartTime > tempList[i].OverTimeDuration)
+            {
+                tempList[i].IsOverTime = true;
+
+                if (tempList[i].m_TimeCalcVoidDelegate != null)
+                {
+                    tempList[i].m_TimeCalcVoidDelegate();
+                }
+            }
+        }
+
+        //Every delegate.
+        if (Time.realtimeSinceStartup - TimeCalcLastTime > 1.0f)
+        {
+            var tempList2 = TimeCalc.m_timeCalcList.Where(item => (!item.IsOneDelegate) && (item.StartTime >= 0) && (!item.IsOverTime)).ToList();
+
+            for (int i = 0; i < tempList2.Count; i++)
+            {
+                if (Time.realtimeSinceStartup - tempList2[i].StartTime > tempList2[i].OverTimeDuration)
+                {
+                    tempList2[i].IsOverTime = true;
+                }
+
+                if (tempList2[i].m_TimeCalcIntDelegate != null)
+                {
+                    tempList2[i].m_TimeCalcIntDelegate((int)GetCalcTime(tempList2[i].key));
+                }
+            }
+
+            TimeCalcLastTime = Time.realtimeSinceStartup;
+        }
+    }
+
+    private class TimeCalc
+    {
+        public string key;
+
+        public bool IsOverTime;
+        public float StartTime;
+        public float OverTimeDuration;
+        public bool IsOneDelegate;
+        public TimeCalcVoidDelegate m_TimeCalcVoidDelegate;
+        public TimeCalcIntDelegate m_TimeCalcIntDelegate;
+
+        public static bool ContainsKey(string key)
+        {
+            return m_timeCalcList.Any(item => item.key == key);
+        }
+
+        public static TimeCalc GetTimeCalc(string key)
+        {
+            if (!ContainsKey(key)) return null;
+
+            return m_timeCalcList.Where(item => item.key == key).FirstOrDefault();
+        }
+
+        public static List<TimeCalc> m_timeCalcList = new List<TimeCalc>();
+    }
+
+    public delegate void TimeCalcVoidDelegate();
+    public delegate void TimeCalcIntDelegate(int time);
+
+    /// <summary>
+    /// Add time calc dictionary item, delegate execute when time calc ends.
+    /// </summary>
+    /// <param name="key">item key</param>
+    /// <param name="duration">time over duration</param>
+    /// <param name="l_timeCalcVoidDelegate">delegate</param>
+    /// <returns>is add succeed</returns>
+    public bool AddOneDelegateToTimeCalc(string key, float duration, TimeCalcVoidDelegate l_timeCalcVoidDelegate = null)
+    {
+        if (TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("Cannot add key:" + key + " to time calc cause key already exist.");
+            return false;
+        }
+
+        TimeCalc.m_timeCalcList.Add(new TimeCalc() { key = key, IsOverTime = true, StartTime = -1, OverTimeDuration = duration, m_TimeCalcVoidDelegate = l_timeCalcVoidDelegate, IsOneDelegate = true });
+
+        StartCalc(key);
+        return true;
+    }
+
+    /// <summary>
+    /// Add time calc dictionary item, delegate execute every seconds.
+    /// </summary>
+    /// <param name="key">item key</param>
+    /// <param name="duration">time over duration</param>
+    /// <param name="l_timeCalcIntDelegate">delegate</param>
+    /// <returns>is add succeed</returns>
+    public bool AddEveryDelegateToTimeCalc(string key, float duration, TimeCalcIntDelegate l_timeCalcIntDelegate = null)
+    {
+        if (TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("Cannot add key:" + key + " to time calc cause key already exist.");
+            return false;
+        }
+
+        TimeCalc.m_timeCalcList.Add(new TimeCalc() { key = key, IsOverTime = true, StartTime = -1, OverTimeDuration = duration, m_TimeCalcIntDelegate = l_timeCalcIntDelegate, IsOneDelegate = false });
+
+        StartCalc(key);
+        return true;
+    }
+
+    /// <summary>
+    /// Remove time calc dictionary item.
+    /// </summary>
+    /// <param name="key">item key</param>
+    /// <returns>is remove succeed</returns>
+    public bool RemoveFromTimeCalc(string key)
+    {
+        StopCalc(key);
+
+        if (!TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("Cannot remove key:" + key + " to time calc cause key not exist.");
+            return false;
+        }
+
+        TimeCalc.m_timeCalcList.Remove(TimeCalc.GetTimeCalc(key));
+        return true;
+    }
+
+    /// <summary>
+    /// IsTimeCalcKeyExist
+    /// </summary>
+    /// <param name="key">item key</param>
+    /// <returns>is key exist</returns>
+    public bool IsTimeCalcKeyExist(string key)
+    {
+        return TimeCalc.ContainsKey(key);
+    }
+
+    /// <summary>
+    /// Start time calc
+    /// </summary>
+    /// <param name="key">item key</param>
+    private void StartCalc(string key)
+    {
+        if (!TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("key:" + key + " not exist.");
+            return;
+        }
+
+        TimeCalc.GetTimeCalc(key).IsOverTime = false;
+        TimeCalc.GetTimeCalc(key).StartTime = Time.realtimeSinceStartup;
+    }
+
+    /// <summary>
+    /// Stop time calc
+    /// </summary>
+    /// <param name="key">item key</param>
+    private void StopCalc(string key)
+    {
+        if (!TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("key:" + key + " not exist.");
+            return;
+        }
+
+        TimeCalc.GetTimeCalc(key).IsOverTime = true;
+        TimeCalc.GetTimeCalc(key).StartTime = -1;
+    }
+
+    /// <summary>
+    /// Is over time
+    /// </summary>
+    /// <param name="key">item key</param>
+    /// <returns>is over</returns>
+    public bool IsCalcTimeOver(string key)
+    {
+        if (!TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("key:" + key + " not exist.");
+            return false;
+        }
+
+        if (TimeCalc.GetTimeCalc(key).StartTime < 0)
+        {
+            Debug.LogError("Time calc key:" + key + " stopped or never start.");
+            return false;
+        }
+
+        return TimeCalc.GetTimeCalc(key).IsOverTime;
+    }
+
+    public float GetCalcTime(string key)
+    {
+        if (!TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("key:" + key + " not exist.");
+            return -1;
+        }
+
+        if (TimeCalc.GetTimeCalc(key).StartTime < 0)
+        {
+            Debug.LogError("Time calc key:" + key + " stopped or never start.");
+            return -1;
+        }
+
+        return Time.realtimeSinceStartup - TimeCalc.GetTimeCalc(key).StartTime;
+    }
+
+    #endregion
 
 }

@@ -22,4 +22,14 @@ shared module of Unity
 
 9.Add several functions to improve UIScrollView in NGUI.
 
-11.Fold line module.
+10.Fold line module.
+
+11.Clock time module.
+
+12.Time calculation module.
+
+13.Basic math module.
+
+14.Add Bezier curve utility, may useful in curve move in 3D scene.
+
+15.Add personal player controller, may useful in player controller in RPG game.
