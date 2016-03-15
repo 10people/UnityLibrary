@@ -1,5 +1,5 @@
 # UnityLibrary
-shared module of Unity
+shared modules/shaders of Unity
 =======================
 
 ###Modules:
@@ -33,3 +33,17 @@ shared module of Unity
 14.Add Bezier curve utility, may useful in curve move in 3D scene.
 
 15.Add personal player controller, may useful in player controller in RPG game.
+
+========================
+
+###Shaders:
+
+1.Rendering depth testing shader.
+
+2.Golden line effect shader.
+
+3.Wave shader.
+
+4.Disappear shaer.
+
+5.Vague screen effect shader.
