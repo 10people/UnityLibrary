@@ -1,11 +1,11 @@
 # UnityLibrary
 shared modules/shaders of Unity(NGUI 3.6.0, iTween contained)
 
-###Version 1.0.3
-
 =======================
 
-###Modules:
+###Version 1.0.3
+
+Modules:
 
 1.Small map controller and effect in RPG module.
 
@@ -19,29 +19,21 @@ shared modules/shaders of Unity(NGUI 3.6.0, iTween contained)
 
 6.Add swap value, animation hierarchy and frame time calc in Utils class.
 
-
-
-
+=======================
 
 ###Version 1.0.2
 
-=======================
-
-###Modules:
+Modules:
 
 1.Add Bezier curve utility, may useful in curve move in 3D scene.
 
 2.Add personal player controller, may useful in player controller in RPG game.
 
-
-
-
+=======================
 
 ###Version 1.0.1
 
-========================
-
-###Shaders:
+Shaders:
 
 1.Rendering depth testing shader.
 
@@ -53,15 +45,11 @@ shared modules/shaders of Unity(NGUI 3.6.0, iTween contained)
 
 5.Vague screen effect shader.
 
-
-
-
+=======================
 
 Version 1.0.0
 
-=======================
-
-###Modules:
+Modules:
 
 1.Child/Parent tranform search.
 
