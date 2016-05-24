@@ -1,35 +1,31 @@
-﻿using System;
+﻿//#define DEBUG_MODE
+
+using System;
 using UnityEngine;
 using System.Collections;
 using System.IO;
 
-/// <summary>
-/// Controller of personal player, this is not a abstract class cause some feature must be putted in, but your should always implement this to attach it on your prefab.
-/// </summary>
 public class SinglePlayerController : MonoBehaviour
 {
+    //TODO: add ur own audio listenre.
+    private AudioListener m_audioListener;
+
     #region Configs
 
     /// <summary>
     /// Is fixed or rotate main camera.
     /// </summary>
-    [HideInInspector]
-    public bool IsRotateCamera;
+    public bool IsRotateCamera = false;
 
     /// <summary>
     /// Is upload player position or not.
     /// </summary>
-    [HideInInspector]
-    public bool IsUploadPlayerPosition;
+    public bool IsUploadPlayerPosition = true;
 
-    [HideInInspector]
     public float BaseGroundPosY;
 
-    /// <summary>
-    /// Sync character if has duration has passed.
-    /// </summary>
-    [HideInInspector]
-    public float m_CharacterSyncDuration = 0;
+    public static float m_CharacterSyncDuration = 0.2f;
+    public static float m_CharacterMoveDistance = 0.1f;
 
     #endregion
 
@@ -61,7 +57,12 @@ public class SinglePlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Character animations controller.
+    /// player uid used for server sync.
+    /// </summary>
+    public static int s_uid;
+
+    /// <summary>
+    /// Character stood and run animations.
     /// </summary>
     public Animator m_Animator;
 
@@ -73,16 +74,16 @@ public class SinglePlayerController : MonoBehaviour
     [HideInInspector]
     public bool IsInNavigate;
 
-    //these delegates execute on specific timing in navigation.
     [HideInInspector]
     public delegate void VoidDelegate();
     [HideInInspector]
     public VoidDelegate m_CompleteNavDelegate;
     public VoidDelegate m_StartNavDelegate;
-    public VoidDelegate m_StopNavDelegate;
+    public VoidDelegate m_EndNavDelegate;
 
     [HideInInspector]
     public Vector3 NavigationEndPosition;
+    private float navigateDistance = 1f;
 
     public CharacterController m_CharacterController;
     public NavMeshAgent m_NavMeshAgent;
@@ -97,12 +98,13 @@ public class SinglePlayerController : MonoBehaviour
             return
 #if UNITY_EDITOR || UNITY_STANDALONE
                 new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-#else
-            m_Joystick.m_Offset;
+#else  
+            m_Joystick.m_uiOffset;
 #endif
         }
     }
 
+    //TODO set ur own config
     public float m_CharacterSpeed = 6;
     public float m_CharacterSpeedY = 0.6f;
     public float m_NavigateSpeed = 6;
@@ -128,17 +130,26 @@ public class SinglePlayerController : MonoBehaviour
     public float m_LastNavigateTime;
     public Transform m_NavigationTransform;
 
-    public void StartNavigation(Vector3 tempPosition)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="tempPosition"></param>
+    /// <param name="tempDistance">navigate distance, 1f for default.</param>
+    public void StartNavigation(Vector3 tempPosition, float tempDistance = 1f)
     {
         if (!is_CanMove)
         {
+#if DEBUG_MODE
             Debug.LogWarning("Cancel navigate cause controller set.");
+#endif
             return;
         }
 
         if (m_RealJoystickOffset != Vector3.zero)
         {
+#if DEBUG_MODE
             Debug.LogWarning("Cancel navigation cause in character control");
+#endif
             return;
         }
 
@@ -147,6 +158,9 @@ public class SinglePlayerController : MonoBehaviour
             m_LastNavigateTime = Time.realtimeSinceStartup;
 
             m_IsTurning = true;
+
+            navigateDistance = tempDistance;
+
             StartCoroutine(DoStartNavigation(tempPosition));
 
             if (m_StartNavDelegate != null)
@@ -156,15 +170,20 @@ public class SinglePlayerController : MonoBehaviour
         }
     }
 
+    private float navigationRotateSpeed = 180f;
+
     public IEnumerator DoStartNavigation(Vector3 tempPosition)
     {
         while (true)
         {
             Vector3 oldAngle = transform.eulerAngles;
-            transform.forward = tempPosition - transform.position;
 
+            //Get target angle.
+            transform.forward = tempPosition - transform.position;
             float targetAngleY = transform.eulerAngles.y;
-            float maxDelta = 1080 * Time.deltaTime;
+
+            //Get angle per frame.
+            float maxDelta = navigationRotateSpeed * Time.deltaTime;
             float angle = Mathf.MoveTowardsAngle(oldAngle.y, targetAngleY, maxDelta);
 
             transform.eulerAngles = new Vector3(0, angle, 0);
@@ -187,8 +206,6 @@ public class SinglePlayerController : MonoBehaviour
         {
             m_IsMoving = true;
         }
-
-        Debug.Log("Start navigate to position:" + tempPosition);
 
         m_NavMeshAgent.Resume();
 
@@ -217,9 +234,9 @@ public class SinglePlayerController : MonoBehaviour
         m_CharacterController.enabled = true;
         m_NavMeshAgent.enabled = false;
 
-        if (m_StopNavDelegate != null)
+        if (m_EndNavDelegate != null)
         {
-            m_StopNavDelegate();
+            m_EndNavDelegate();
         }
     }
 
@@ -231,22 +248,27 @@ public class SinglePlayerController : MonoBehaviour
     public Camera TrackCamera;
 
     /// <summary>
-    /// offset of positive axis y, you must set this before using this script.
+    /// offset of positive axis y, Only effective in camera rotate mode
     /// </summary>
     [HideInInspector]
     public float TrackCameraOffsetPosUp;
 
     /// <summary>
-    /// offset of negative axis z, you must set this before using this script.
+    /// offset of negative axis z, Only effective in camera rotate mode
     /// </summary>
     [HideInInspector]
     public float TrackCameraOffsetPosBack;
 
     /// <summary>
-    /// offset of up down rotation, you must set this before using this script.
+    /// offset of up down rotation, Only effective in camera rotate mode
     /// </summary>
     [HideInInspector]
     public float TrackCameraOffsetUpDownRotation;
+
+    [HideInInspector]
+    public Vector3 TrackCameraPosition;
+    [HideInInspector]
+    public Vector3 TrackCameraRotation;
 
     public void LateUpdate()
     {
@@ -267,7 +289,16 @@ public class SinglePlayerController : MonoBehaviour
         //Use camera offset position and rotation.
         else
         {
-            TrackCamera.transform.localPosition = transform.localPosition + new Vector3(0, TrackCameraOffsetPosUp, -TrackCameraOffsetPosBack);
+            if (TrackCameraPosition == Vector3.zero || TrackCameraRotation == Vector3.zero)
+            {
+                TrackCameraPosition = TrackCamera.transform.localPosition;
+                TrackCameraRotation = TrackCamera.transform.localEulerAngles;
+
+                return;
+            }
+
+            TrackCamera.transform.localPosition = TrackCameraPosition + new Vector3(transform.localPosition.x, 0, transform.localPosition.z);
+            TrackCamera.transform.localEulerAngles = TrackCameraRotation;
         }
     }
 
@@ -276,22 +307,49 @@ public class SinglePlayerController : MonoBehaviour
     #region Character sync
 
     public float m_lastUploadCheckTime;
+    private int m_sameTransformTimes;
 
     public Vector3 m_lastPosition;
-    public Vector3 m_nowPosition;
+    public Vector3 m_lastRotation;
 
     /// <summary>
     /// Commit this character's position to server.
     /// </summary>
-    public void UploadPlayerPosition()
+    public void TryUploadPlayerPosition()
     {
-        if (Vector3.Distance(m_lastPosition, m_nowPosition) > 0.1) //玩家有位移 发送数据
+        if (Vector3.Distance(m_lastPosition, transform.localPosition) < 0.1f && Vector3.Distance(m_lastRotation, transform.localEulerAngles) < 0.1f)
         {
-            //TODO: Complete sending sync message to server.
+            m_sameTransformTimes++;
         }
+        else
+        {
+            m_sameTransformTimes = 0;
+        }
+
+        if (m_sameTransformTimes >= 2)
+        {
+            return;
+        }
+
+
+        //TODO: send position to server.
+
+        m_lastPosition = transform.localPosition;
+        m_lastRotation = transform.localEulerAngles;
     }
 
     #endregion
+
+    public void OnDestroy()
+    {
+        StopPlayerNavigation();
+
+        m_CharacterController = null;
+
+        m_NavMeshAgent = null;
+
+        m_Animator = null;
+    }
 
     public void Update()
     {
@@ -300,14 +358,13 @@ public class SinglePlayerController : MonoBehaviour
         if (IsUploadPlayerPosition && Time.realtimeSinceStartup - m_lastUploadCheckTime >= m_CharacterSyncDuration)
         {
             m_lastUploadCheckTime = Time.realtimeSinceStartup;
-            m_nowPosition = transform.position;
 
-            UploadPlayerPosition();
+            TryUploadPlayerPosition();
         }
 
         #endregion
 
-        //TODO: Sync audio listener position with player, used in RPG game to make player hear the real sound.
+        m_audioListener.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - 1);
 
         if (m_RealJoystickOffset != Vector3.zero && IsInNavigate)
         {
@@ -318,7 +375,9 @@ public class SinglePlayerController : MonoBehaviour
 
         if (!is_CanMove)
         {
-            Debug.LogWarning("Cancel move cause controller set.");
+#if DEBUG_MODE
+            Debug.Log("Cancel move cause controller set.");
+#endif
         }
         else
         {
@@ -363,7 +422,7 @@ public class SinglePlayerController : MonoBehaviour
                         }
 
                         //move if offset above half distance
-                        if (distance > Joystick.MaxReinDistance / 2.0f || isMoveForward)
+                        if (distance > Joystick.MaxRadiusDistance / 2.0f || isMoveForward)
                         {
                             m_CharacterController.Move(moveDirection.normalized * m_CharacterSpeed * Time.deltaTime);
                         }
@@ -371,6 +430,8 @@ public class SinglePlayerController : MonoBehaviour
                     else
                     {
                         Vector3 moveDirection = offset.normalized;
+                        double degree = -TrackCamera.transform.localEulerAngles.y * Math.PI / 180;
+                        moveDirection = new Vector3((float)(Math.Cos(degree) * moveDirection.x - Math.Sin(degree) * moveDirection.z), 0, (float)(Math.Cos(degree) * moveDirection.z + Math.Sin(degree) * moveDirection.x));
 
                         OnPlayerRun();
 
@@ -379,14 +440,16 @@ public class SinglePlayerController : MonoBehaviour
                             m_IsMoving = true;
                         }
 
+                        //rotate and move.
+                        transform.forward = moveDirection.normalized;
+
                         if (!m_CharacterController.isGrounded)
                         {
                             moveDirection.y -= m_CharacterSpeedY;
                         }
 
-                        //rotate and move.
-                        transform.forward = offset.normalized;
                         m_CharacterController.Move(moveDirection.normalized * m_CharacterSpeed * Time.deltaTime);
+
                     }
                 }
                 else
@@ -416,8 +479,8 @@ public class SinglePlayerController : MonoBehaviour
 
         if (IsInNavigate)
         {
-            //Check navigation remaining destination, end navigation if close enough.
-            if (Vector3.Distance(m_Transform.position, NavigationEndPosition) <= 3)
+            //Check navigation remaining destination
+            if (Vector3.Distance(m_Transform.position, NavigationEndPosition) <= navigateDistance)
             {
                 StopPlayerNavigation();
                 if (m_CompleteNavDelegate != null)

@@ -111,8 +111,8 @@ public class FloatButtonsController : MonoBehaviour
             return;
         }
 
-        m_ButtonInfoDic[index].m_VoidDelegate();
-
         Destroy(gameObject);
+
+        m_ButtonInfoDic[index].m_VoidDelegate();
     }
 }

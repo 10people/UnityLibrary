@@ -11,7 +11,7 @@ public class Joystick : MonoBehaviour
     public Camera m_CurrentCamera;
 
     public Transform m_JoystickBG;
-    public Transform m_JoystickRein;
+    public Transform m_JoystickToggle;
 
     private UICamera.MouseOrTouch m_MouseOrTouch;
 
@@ -20,7 +20,7 @@ public class Joystick : MonoBehaviour
     /// <summary>
     /// Max distance of radius of BG.
     /// </summary>
-    public const float MaxReinDistance = 60;
+    public const float MaxRadiusDistance = 60;
 
     void Update()
     {
@@ -30,7 +30,7 @@ public class Joystick : MonoBehaviour
             {
                 m_MouseOrTouch = null;
                 m_JoystickBG.localPosition = Vector3.zero;
-                m_JoystickRein.localPosition = Vector3.zero;
+                m_JoystickToggle.localPosition = Vector3.zero;
                 m_Offset = Vector3.zero;
 
                 return;
@@ -38,15 +38,15 @@ public class Joystick : MonoBehaviour
             else
             {
                 //put whole joystick to current finger/cursor position.
-                m_JoystickRein.position = m_CurrentCamera.ScreenToWorldPoint(m_MouseOrTouch.pos);
+                m_JoystickToggle.position = m_CurrentCamera.ScreenToWorldPoint(m_MouseOrTouch.pos);
 
                 //restrict toggle's position within the BG.
-                float Dis = Vector3.Distance(Vector3.zero, m_JoystickRein.localPosition);
-                if (Dis > MaxReinDistance)
+                float Dis = Vector3.Distance(Vector3.zero, m_JoystickToggle.localPosition);
+                if (Dis > MaxRadiusDistance)
                 {
-                    m_JoystickRein.localPosition = m_JoystickRein.localPosition.normalized * MaxReinDistance;
+                    m_JoystickToggle.localPosition = m_JoystickToggle.localPosition.normalized * MaxRadiusDistance;
                 }
-                m_Offset = new Vector3(m_JoystickRein.localPosition.x, 0, m_JoystickRein.localPosition.y);
+                m_Offset = new Vector3(m_JoystickToggle.localPosition.x, 0, m_JoystickToggle.localPosition.y);
             }
         }
     }

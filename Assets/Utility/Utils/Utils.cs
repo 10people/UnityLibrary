@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class Utils : MonoBehaviour
+public class Utils : Singleton<Utils>
 {
     #region Transform
 
@@ -194,6 +194,13 @@ public class Utils : MonoBehaviour
         targetChild.gameObject.SetActive(true);
     }
 
+    public static Vector3 GetTrackRotation(Vector3 sourcePos, Vector3 targetPos)
+    {
+        double angleTemp = Math.Atan2(targetPos.x - sourcePos.x, targetPos.z - sourcePos.z) / Math.PI * 180;
+
+        return new Vector3(0, (float)angleTemp, 0);
+    }
+
     #endregion
 
     #region Math
@@ -280,6 +287,13 @@ public class Utils : MonoBehaviour
             }
         }
         return origStr;
+    }
+
+    public static void SwapValue(ref float a, ref float b)
+    {
+        var temp = a;
+        a = b;
+        b = temp;
     }
 
     #endregion
@@ -489,10 +503,11 @@ public class Utils : MonoBehaviour
 
     private float TimeCalcLastTime;
 
+    // Update is called once per frame
     void Update()
     {
         //One delegate.
-        var tempList = TimeCalc.m_timeCalcList.Where(item => (item.IsOneDelegate) && (item.StartTime >= 0) && (!item.IsOverTime)).ToList();
+        var tempList = TimeCalc.m_timeCalcList.Where(item => (item.DelegateMode == 1) && (item.StartTime >= 0) && (!item.IsOverTime)).ToList();
         for (int i = 0; i < tempList.Count; i++)
         {
             if (Time.realtimeSinceStartup - tempList[i].StartTime > tempList[i].OverTimeDuration)
@@ -506,25 +521,56 @@ public class Utils : MonoBehaviour
             }
         }
 
-        //Every delegate.
+        //One Key string delegate.
+        var tempList2 = TimeCalc.m_timeCalcList.Where(item => (item.DelegateMode == 2) && (item.StartTime >= 0) && (!item.IsOverTime)).ToList();
+        for (int i = 0; i < tempList2.Count; i++)
+        {
+            if (Time.realtimeSinceStartup - tempList2[i].StartTime > tempList2[i].OverTimeDuration)
+            {
+                tempList2[i].IsOverTime = true;
+
+                if (tempList2[i].m_TimeCalcStringDelegate != null)
+                {
+                    tempList2[i].m_TimeCalcStringDelegate(tempList2[i].key);
+                }
+            }
+        }
+
+        //Per/s delegate.
         if (Time.realtimeSinceStartup - TimeCalcLastTime > 1.0f)
         {
-            var tempList2 = TimeCalc.m_timeCalcList.Where(item => (!item.IsOneDelegate) && (item.StartTime >= 0) && (!item.IsOverTime)).ToList();
+            var tempList3 = TimeCalc.m_timeCalcList.Where(item => (item.DelegateMode == 3) && (item.StartTime >= 0) && (!item.IsOverTime)).ToList();
 
-            for (int i = 0; i < tempList2.Count; i++)
+            for (int i = 0; i < tempList3.Count; i++)
             {
-                if (Time.realtimeSinceStartup - tempList2[i].StartTime > tempList2[i].OverTimeDuration)
+                if (Time.realtimeSinceStartup - tempList3[i].StartTime > tempList3[i].OverTimeDuration)
                 {
-                    tempList2[i].IsOverTime = true;
+                    tempList3[i].IsOverTime = true;
                 }
 
-                if (tempList2[i].m_TimeCalcIntDelegate != null)
+                if (tempList3[i].m_TimeCalcIntDelegate != null)
                 {
-                    tempList2[i].m_TimeCalcIntDelegate((int)GetCalcTime(tempList2[i].key));
+                    tempList3[i].m_TimeCalcIntDelegate((int)GetCalcTime(tempList3[i].key));
                 }
             }
 
             TimeCalcLastTime = Time.realtimeSinceStartup;
+        }
+
+        //Per/frame delegate.
+        var tempList4 = TimeCalc.m_timeCalcList.Where(item => (item.DelegateMode == 4) && (item.StartTime >= 0) && (!item.IsOverTime)).ToList();
+
+        for (int i = 0; i < tempList4.Count; i++)
+        {
+            if (Time.realtimeSinceStartup - tempList4[i].StartTime > tempList4[i].OverTimeDuration)
+            {
+                tempList4[i].IsOverTime = true;
+            }
+
+            if (tempList4[i].m_TimeCalcFloatDelegate != null)
+            {
+                tempList4[i].m_TimeCalcFloatDelegate(GetCalcTime(tempList4[i].key));
+            }
         }
     }
 
@@ -535,9 +581,14 @@ public class Utils : MonoBehaviour
         public bool IsOverTime;
         public float StartTime;
         public float OverTimeDuration;
-        public bool IsOneDelegate;
-        public TimeCalcVoidDelegate m_TimeCalcVoidDelegate;
-        public TimeCalcIntDelegate m_TimeCalcIntDelegate;
+        /// <summary>
+        /// 1: one deleagte, 2:per/s delegate, 3:per/frame delegate
+        /// </summary>
+        public int DelegateMode;
+        public DelegateUtil.VoidDelegate m_TimeCalcVoidDelegate;
+        public DelegateUtil.StringDelegate m_TimeCalcStringDelegate;
+        public DelegateUtil.IntDelegate m_TimeCalcIntDelegate;
+        public DelegateUtil.FloatDelegate m_TimeCalcFloatDelegate;
 
         public static bool ContainsKey(string key)
         {
@@ -556,15 +607,16 @@ public class Utils : MonoBehaviour
 
     public delegate void TimeCalcVoidDelegate();
     public delegate void TimeCalcIntDelegate(int time);
+    public delegate void TimeCalcFloatDelegate(float time);
 
     /// <summary>
     /// Add time calc dictionary item, delegate execute when time calc ends.
     /// </summary>
     /// <param name="key">item key</param>
     /// <param name="duration">time over duration</param>
-    /// <param name="l_timeCalcVoidDelegate">delegate</param>
+    /// <param name="l_voidDelegate">delegate</param>
     /// <returns>is add succeed</returns>
-    public bool AddOneDelegateToTimeCalc(string key, float duration, TimeCalcVoidDelegate l_timeCalcVoidDelegate = null)
+    public bool AddOneDelegateToTimeCalc(string key, float duration, DelegateUtil.VoidDelegate l_voidDelegate = null)
     {
         if (TimeCalc.ContainsKey(key))
         {
@@ -572,7 +624,28 @@ public class Utils : MonoBehaviour
             return false;
         }
 
-        TimeCalc.m_timeCalcList.Add(new TimeCalc() { key = key, IsOverTime = true, StartTime = -1, OverTimeDuration = duration, m_TimeCalcVoidDelegate = l_timeCalcVoidDelegate, IsOneDelegate = true });
+        TimeCalc.m_timeCalcList.Add(new TimeCalc() { key = key, IsOverTime = true, StartTime = -1, OverTimeDuration = duration, m_TimeCalcVoidDelegate = l_voidDelegate, DelegateMode = 1 });
+
+        StartCalc(key);
+        return true;
+    }
+
+    /// <summary>
+    /// Add time calc dictionary item, delegate execute when time calc ends.
+    /// </summary>
+    /// <param name="key">item key</param>
+    /// <param name="duration">time over duration</param>
+    /// <param name="l_stringDelegate">delegate</param>
+    /// <returns>is add succeed</returns>
+    public bool AddOneDelegateToTimeCalc(string key, float duration, DelegateUtil.StringDelegate l_stringDelegate = null)
+    {
+        if (TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("Cannot add key:" + key + " to time calc cause key already exist.");
+            return false;
+        }
+
+        TimeCalc.m_timeCalcList.Add(new TimeCalc() { key = key, IsOverTime = true, StartTime = -1, OverTimeDuration = duration, m_TimeCalcStringDelegate = l_stringDelegate, DelegateMode = 2 });
 
         StartCalc(key);
         return true;
@@ -583,9 +656,9 @@ public class Utils : MonoBehaviour
     /// </summary>
     /// <param name="key">item key</param>
     /// <param name="duration">time over duration</param>
-    /// <param name="l_timeCalcIntDelegate">delegate</param>
+    /// <param name="l_intDelegate">delegate</param>
     /// <returns>is add succeed</returns>
-    public bool AddEveryDelegateToTimeCalc(string key, float duration, TimeCalcIntDelegate l_timeCalcIntDelegate = null)
+    public bool AddEveryDelegateToTimeCalc(string key, float duration, DelegateUtil.IntDelegate l_intDelegate = null)
     {
         if (TimeCalc.ContainsKey(key))
         {
@@ -593,7 +666,28 @@ public class Utils : MonoBehaviour
             return false;
         }
 
-        TimeCalc.m_timeCalcList.Add(new TimeCalc() { key = key, IsOverTime = true, StartTime = -1, OverTimeDuration = duration, m_TimeCalcIntDelegate = l_timeCalcIntDelegate, IsOneDelegate = false });
+        TimeCalc.m_timeCalcList.Add(new TimeCalc() { key = key, IsOverTime = true, StartTime = -1, OverTimeDuration = duration, m_TimeCalcIntDelegate = l_intDelegate, DelegateMode = 3 });
+
+        StartCalc(key);
+        return true;
+    }
+
+    /// <summary>
+    /// Add time calc dictionary item, delegate execute every seconds.
+    /// </summary>
+    /// <param name="key">item key</param>
+    /// <param name="duration">time over duration</param>
+    /// <param name="l_floatDelegate">delegate</param>
+    /// <returns>is add succeed</returns>
+    public bool AddFrameDelegateToTimeCalc(string key, float duration, DelegateUtil.FloatDelegate l_floatDelegate = null)
+    {
+        if (TimeCalc.ContainsKey(key))
+        {
+            Debug.LogError("Cannot add key:" + key + " to time calc cause key already exist.");
+            return false;
+        }
+
+        TimeCalc.m_timeCalcList.Add(new TimeCalc() { key = key, IsOverTime = true, StartTime = -1, OverTimeDuration = duration, m_TimeCalcFloatDelegate = l_floatDelegate, DelegateMode = 4 });
 
         StartCalc(key);
         return true;
@@ -701,4 +795,12 @@ public class Utils : MonoBehaviour
 
     #endregion
 
+    #region Animation
+
+    public static int GetAnimatorPlayingHash(Animator p_animator)
+    {
+        return p_animator.GetCurrentAnimatorStateInfo(0).shortNameHash;
+    }
+
+    #endregion
 }
