@@ -1,3 +1,13 @@
+//----------------------------------------------
+//	Time        : 
+//	Author      : Taylor Liang
+//	Site        : https://github.com/10people
+//	Instruction : 
+//	ChangeLog   :
+//
+//	Copyright © 2011-2016 Taylor Liang
+//----------------------------------------------
+
 using System;
 using UnityEngine;
 using System.IO;
