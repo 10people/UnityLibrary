@@ -5,7 +5,7 @@
 //	Instruction : 
 //	ChangeLog   :
 //
-//	Copyright © 2011-2016 Taylor Liang
+//	Copyright © Taylor Liang
 //----------------------------------------------
 
 using System;
