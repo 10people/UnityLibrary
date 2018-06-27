@@ -44,7 +44,7 @@ public class OtherPlayerController : MonoBehaviour
     [HideInInspector]
     public Transform m_transform;
     [HideInInspector]
-    public NavMeshAgent m_Agent;
+    public UnityEngine.AI.NavMeshAgent m_Agent;
     [HideInInspector]
     public Animator m_animation;
     [HideInInspector]
@@ -55,7 +55,7 @@ public class OtherPlayerController : MonoBehaviour
     void Awake()
     {
         m_animation = GetComponent<Animator>();
-        m_Agent = GetComponent<NavMeshAgent>();
+        m_Agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         m_CharacterController = GetComponent<CharacterController>();
     }
 

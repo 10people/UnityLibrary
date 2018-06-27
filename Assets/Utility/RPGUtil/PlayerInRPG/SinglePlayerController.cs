@@ -86,7 +86,7 @@ public class SinglePlayerController : MonoBehaviour
     private float navigateDistance = 1f;
 
     public CharacterController m_CharacterController;
-    public NavMeshAgent m_NavMeshAgent;
+    public UnityEngine.AI.NavMeshAgent m_NavMeshAgent;
 
     [HideInInspector]
     public Joystick m_Joystick;
@@ -506,7 +506,7 @@ public class SinglePlayerController : MonoBehaviour
 
     public void Awake()
     {
-        m_NavMeshAgent = GetComponent<NavMeshAgent>();
+        m_NavMeshAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         m_CharacterController = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
     }

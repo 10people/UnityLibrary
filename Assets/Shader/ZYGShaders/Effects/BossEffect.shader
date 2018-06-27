@@ -1,4 +1,6 @@
-﻿Shader "Custom/Effects/Boss Effect" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Effects/Boss Effect" {
 	Properties {
 		_TintColor( "Tint Color", Color ) = ( 0.72, 0.72, 0, 0.5 )
 		_Coef( "Coefficient", Range (0.0, 1.0 ) ) = 0.4
@@ -64,7 +66,7 @@
 		        v4f vert( appdata p_v ){  
 		            v4f t_out;
 		            
-		            t_out.m_pos = mul( UNITY_MATRIX_MVP, p_v.m_vertex );
+		            t_out.m_pos = UnityObjectToClipPos( p_v.m_vertex );
 		            
 		            float t_dot = dot( p_v.m_normal, _Vec3.xyz );
 		            

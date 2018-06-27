@@ -1,4 +1,6 @@
-﻿Shader "Custom/Effects/Battle Map RT" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Effects/Battle Map RT" {
 	Properties {
 		_MainTex ("Base (RGB), Alpha (A)", 2D) = "black" {}
 		
@@ -49,7 +51,7 @@
 	        v4f vert( appdata p_v ){  
 	            v4f t_out;
 	            
-	            t_out.m_pos = mul( UNITY_MATRIX_MVP, p_v.m_vertex );
+	            t_out.m_pos = UnityObjectToClipPos( p_v.m_vertex );
 				
 				t_out.m_tex = TRANSFORM_TEX( p_v.m_uv, _MainTex );
 				

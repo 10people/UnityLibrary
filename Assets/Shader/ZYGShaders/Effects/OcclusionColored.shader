@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Custom/Effects/Occlusion Colored" {
 	Properties 
 	{
@@ -46,7 +48,7 @@ Shader "Custom/Effects/Occlusion Colored" {
 	        v4f vert( appdata p_v ){  
 	            v4f t_out;
 	            
-	            t_out.m_pos = mul( UNITY_MATRIX_MVP, p_v.m_vertex );
+	            t_out.m_pos = UnityObjectToClipPos( p_v.m_vertex );
 	            
 				t_out.m_color.xyz = p_v.m_normal * _Coef + _OccludeColor.xyz;
 					

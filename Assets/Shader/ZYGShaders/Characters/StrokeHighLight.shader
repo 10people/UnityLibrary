@@ -1,4 +1,6 @@
-﻿Shader "Custom/Characters/Stroke High Light" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Characters/Stroke High Light" {
 	Properties {
 		_FxColor("Fx Color", Color) = ( 0, 0, 0, 0 )
 	
@@ -57,7 +59,7 @@
 		            
 		            t_out.m_uv = p_v.texcoord;
 		            
-		            t_out.m_pos = mul( UNITY_MATRIX_MVP, p_v.vertex );
+		            t_out.m_pos = UnityObjectToClipPos( p_v.vertex );
 		            
 					float3 t_normal = mul( (float3x3)UNITY_MATRIX_IT_MV, p_v.normal );
 					

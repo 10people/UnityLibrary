@@ -1,4 +1,6 @@
-﻿Shader "Custom/Effects/Dissolve Colored" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Effects/Dissolve Colored" {
 	Properties {
 		_Dissolve ("Dissolve", Range(0,1)) = 0
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
@@ -46,7 +48,7 @@
 	        v4f vert( appdata p_v ){  
 	            v4f t_out;
 	            
-	            t_out.m_pos = mul( UNITY_MATRIX_MVP, p_v.m_vertex );
+	            t_out.m_pos = UnityObjectToClipPos( p_v.m_vertex );
 	            
 	            t_out.m_tex = p_v.m_tex;
 	            

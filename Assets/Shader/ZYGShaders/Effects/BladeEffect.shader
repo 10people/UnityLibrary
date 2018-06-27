@@ -1,4 +1,6 @@
-﻿Shader "Custom/Effects/Blade Effect" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Effects/Blade Effect" {
     Properties {
 		_MainTex ("Particle Texture", 2D) = "white" {}
 	}
@@ -50,7 +52,7 @@
 	            
 	            t_out.m_coord = p_v.texcoord;
 	            
-	            t_out.m_pos = mul( UNITY_MATRIX_MVP, p_v.vertex );
+	            t_out.m_pos = UnityObjectToClipPos( p_v.vertex );
 	            
 	            float4 t_scr_pos = ComputeScreenPos( t_out.m_pos );
 	            

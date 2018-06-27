@@ -1,4 +1,6 @@
-﻿Shader "Custom/Effects/Fan Range" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Effects/Fan Range" {
 	Properties {
 		_MainTex( "Base (RGB) Trans (A)", 2D ) = "white" {}
 		_Color( "Main Color", Color ) = ( 1.0, 0.125, 0.125, 0.5 )
@@ -81,7 +83,7 @@
 					
 					t_v.uv =  p_v.texcoord.xy;
 					
-					t_v.pos = mul( UNITY_MATRIX_MVP, p_v.vertex );
+					t_v.pos = UnityObjectToClipPos( p_v.vertex );
 					
 					return t_v;
 				}

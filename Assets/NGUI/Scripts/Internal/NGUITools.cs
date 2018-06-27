@@ -1,6 +1,6 @@
-//----------------------------------------------
+﻿//----------------------------------------------
 //            NGUI: Next-Gen UI kit
-// Copyright 漏 2011-2014 Tasharen Entertainment
+// Copyright 婕?2011-2014 Tasharen Entertainment
 //----------------------------------------------
 
 using UnityEngine;
@@ -54,8 +54,7 @@ static public class NGUITools
 	{
 		get
 		{
-			return Application.platform != RuntimePlatform.WindowsWebPlayer &&
-				Application.platform != RuntimePlatform.OSXWebPlayer;
+			return Application.platform != RuntimePlatform.WebGLPlayer;
 		}
 	}
 

@@ -1,4 +1,6 @@
-﻿Shader "Custom/Effects/Flow SkyBox" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Effects/Flow SkyBox" {
 	Properties {
 		_TintColor( "Tint Color", Color ) = ( 0.72, 0.72, 0, 0.5 )
 		_Coef( "Coefficient", Range (0.0, 360.0 ) ) = 0.0
@@ -46,7 +48,7 @@
 				
 		p_v.m_vertex.z = t_xy.y;
 		            
-		t_out.m_pos = mul( UNITY_MATRIX_MVP, p_v.m_vertex );
+		t_out.m_pos = UnityObjectToClipPos( p_v.m_vertex );
 		            
 		t_out.m_uv = p_v.m_uv;
 		            

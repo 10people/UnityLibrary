@@ -1,4 +1,6 @@
-﻿Shader "Custom/Effects/Indicator Alpha Blended" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Effects/Indicator Alpha Blended" {
 	Properties {
 		_TintColor ("Tint Color", Color) = (0.5,0.5,0.5,0.5)
 		_MainTex ("Particle Texture", 2D) = "white" {}
@@ -45,7 +47,7 @@
 	        v4f vert( appdata_base p_v ){  
 	            v4f t_out;
 	            
-	            t_out.m_pos = mul( UNITY_MATRIX_MVP, p_v.vertex );
+	            t_out.m_pos = UnityObjectToClipPos( p_v.vertex );
 	            
 				t_out.m_color = _TintColor;
 				

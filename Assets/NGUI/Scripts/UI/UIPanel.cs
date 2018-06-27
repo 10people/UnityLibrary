@@ -1,6 +1,6 @@
-//----------------------------------------------
+﻿//----------------------------------------------
 //            NGUI: Next-Gen UI kit
-// Copyright 漏 2011-2014 Tasharen Entertainment
+// Copyright 婕?2011-2014 Tasharen Entertainment
 //----------------------------------------------
 
 #if UNITY_FLASH || UNITY_WP8 || UNITY_METRO
@@ -693,7 +693,6 @@ public class UIPanel : UIRect
 
 		mHalfPixelOffset = (Application.platform == RuntimePlatform.WindowsPlayer ||
 			Application.platform == RuntimePlatform.XBOX360 ||
-			Application.platform == RuntimePlatform.WindowsWebPlayer ||
 			Application.platform == RuntimePlatform.WindowsEditor);
 
 		// Only DirectX 9 needs the half-pixel offset

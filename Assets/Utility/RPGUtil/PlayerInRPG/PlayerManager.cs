@@ -32,7 +32,7 @@ public class PlayerManager : MonoBehaviour
             var temp = Instantiate(PlayerPrefabList[l_roleID - 1]) as GameObject;
 
             temp.GetComponent<CharacterController>().enabled = false;
-            temp.GetComponent<NavMeshAgent>().enabled = false;
+            temp.GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
 
             Utils.ActiveWithStandardize(p_parentTransform, temp.transform);
 

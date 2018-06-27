@@ -1,4 +1,6 @@
-﻿Shader "Custom/Characters/Occlusion Outline" 
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Characters/Occlusion Outline" 
 {
 	Properties {
 		_MainTex( "Base (RGB)", 2D ) = "white" { }
@@ -43,7 +45,7 @@
 			v4f vert( appdata p_v ){
 				v4f t_v;
 				
-				t_v.pos = mul( UNITY_MATRIX_MVP, p_v.vertex );
+				t_v.pos = UnityObjectToClipPos( p_v.vertex );
 			 
 				float3 t_normal = mul( (float3x3)UNITY_MATRIX_IT_MV, p_v.normal );
 				
