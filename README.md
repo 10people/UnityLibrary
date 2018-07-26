@@ -1,3 +1,5 @@
+This project has stopped, some feature integrated to https://github.com/10people/UnityAgileFramework
+
 # UnityLibrary
 shared modules/shaders of Unity(NGUI 3.6.0, iTween contained)
 
